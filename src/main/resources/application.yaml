@@ -1,0 +1,74 @@
+spring:
+  application:
+    name: ${APP_NAME:configuration-service}
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  datasource:
+    url: jdbc:postgresql://${CONFIG_POSTGRES_URL:10.10.10.194}:${CONFIG_POSTGRES_PORT:30431}/${CONFIG_POSTGRES_SCHEMA:etax}?currentSchema=conf
+    username: ${SECRET_POSTGRES_USER:etax}
+    password: ${SECRET_POSTGRES_PASSWORD:password}
+    tomcat:
+      max-wait: 20000
+      max-active: 50
+      max-idle: 20
+      min-idle: 15
+    platform: postgres
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        default_schema: conf
+        jdbc.lob.non_contextual_creation: true
+        format_sql: true
+        id:
+          new_generator_mappings: false
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    show-sql: true
+    database: postgresql
+  tomcat:
+    max-wait: 20000
+    max-active: 50
+    max-idle: 20
+    min-idle: 15
+server:
+  port: 8080
+  servlet:
+    context-path: /${APP_NAME:configuration-service}
+logbook:
+  format.style: json
+  filter.enabled: true
+logging.level.org.zalando.logbook: TRACE
+security:
+  jwt:
+    jwk-url: http://10.10.10.200/authentication-service/.well-known/jwks.json
+management.endpoints.enabled-by-default: true
+management.endpoints.web.exposure.include: liveness, readiness
+logging.level.org.hibernate.SQL: debug
+logging.level.org.hibernate.type.descriptor.sql: trace
+slot_type: slot
+slot_ndid: 0
+passwd_ndid: PAssw0rd@123
+external_cert_name: NEW06391012180005376_181217141149_CERT
+url-client.logging-service: http://10.10.10.200/logging-service/
+
+dms:
+  host: 10.10.10.190/tmb-esign
+  folder: 5599865fc9fe40a8a8cceadbf16c8ddb
+---
+
+spring:
+  profiles: k8s-dev
+  config:
+    additional-location: application.properties
+opentracing:
+  jaeger:
+    http-sender:
+      url: http://jaeger-collector.istio-system:14268/api/traces
+security:
+  jwt:
+    jwk-url: http://authentication-service.${NAME_SPACE:etax-viriyah}:8080/authentication-service/.well-known/jwks.json
+url-client.logging-service: http://logging-service.${NAME_SPACE:etax-viriyah}:8080/logging-service/
+dms:
+  host: dms-service.${NAME_SPACE:etax-viriyah}:8080
+  folder: 812fabfabfabfabda3373430e5d3b90g
